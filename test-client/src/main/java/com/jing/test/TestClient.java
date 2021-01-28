@@ -3,10 +3,12 @@ package com.jing.test;
 import com.jing.rpc.api.HelloObject;
 import com.jing.rpc.api.HelloService;
 import com.jing.rpc.client.RpcClientProxy;
+import com.jing.rpc.socket.client.SocketClient;
 
 public class TestClient {
     public static void main(String[] args) {
-        RpcClientProxy proxy = new RpcClientProxy("127.0.0.1", 9000);
+        SocketClient client = new SocketClient("127.0.0.1", 9000);
+        RpcClientProxy proxy = new RpcClientProxy(client);
         HelloService helloService = proxy.getProxy(HelloService.class);
         HelloObject object = new HelloObject(12, "This is a message");
         String res = helloService.hello(object);

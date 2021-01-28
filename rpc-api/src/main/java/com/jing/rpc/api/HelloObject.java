@@ -11,6 +11,9 @@ public class HelloObject implements Serializable {
         return id;
     }
 
+    public HelloObject() {
+    }
+
     public HelloObject(int id, String message) {
         this.id = id;
         this.message = message;

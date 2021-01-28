@@ -1,23 +1,24 @@
 package com.jing.rpc.client;
 
+import com.jing.rpc.RpcClient;
 import com.jing.rpc.entity.RpcRequest;
 import com.jing.rpc.entity.RpcResponse;
+import com.jing.rpc.socket.client.SocketClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.net.Socket;
 
 public class RpcClientProxy implements InvocationHandler {
 
-    private String host;
-    private int port;
+    private static final Logger logger = LoggerFactory.getLogger(RpcClientProxy.class);
 
-    public RpcClientProxy(String host, int port) {
-        this.host = host;
-        this.port = port;
+    private final RpcClient client;
+
+    public RpcClientProxy(RpcClient client) {
+        this.client = client;
     }
 
     public <T> T getProxy(Class<T> clazz) {
@@ -26,13 +27,15 @@ public class RpcClientProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-        RpcRequest rpcRequest = new RpcRequest();
-        rpcRequest.setInterfaceName(method.getDeclaringClass().getName());
-        rpcRequest.setMethodName(method.getName());
-        rpcRequest.setParameters(objects);
-        rpcRequest.setParamTypes(method.getParameterTypes());
+        logger.info("invoke method: {}#{}", method.getDeclaringClass().getName(), method.getName());
 
-        RpcClient rpcClient = new RpcClient();
-        return ((RpcResponse)rpcClient.sendRequest(rpcRequest, host, port)).getData();
+        RpcRequest rpcRequest = new RpcRequest(
+                method.getDeclaringClass().getName(),
+                method.getName(),
+                objects,
+                method.getParameterTypes()
+        );
+
+        return client.sendRequest(rpcRequest);
     }
 }
