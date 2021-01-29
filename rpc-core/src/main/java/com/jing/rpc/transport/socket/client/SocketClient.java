@@ -1,4 +1,4 @@
-package com.jing.rpc.socket.client;
+package com.jing.rpc.transport.socket.client;
 
 import com.jing.rpc.RpcClient;
 import com.jing.rpc.entity.RpcRequest;

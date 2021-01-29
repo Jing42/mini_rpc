@@ -1,7 +1,7 @@
-package com.jing.rpc.socket.server;
+package com.jing.rpc.transport.socket.server;
 
 import com.jing.rpc.RpcServer;
-import com.jing.rpc.registry.ServiceRegistry;
+import com.jing.rpc.provider.ServiceRegistry;
 import com.jing.rpc.RequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,8 +3,9 @@ package com.jing.rpc.netty.server;
 import com.jing.rpc.RequestHandler;
 import com.jing.rpc.entity.RpcRequest;
 import com.jing.rpc.entity.RpcResponse;
-import com.jing.rpc.registry.DefaultServiceRegistry;
-import com.jing.rpc.registry.ServiceRegistry;
+import com.jing.rpc.provider.ServiceProviderImpl;
+import com.jing.rpc.provider.ServiceProvider;
+import com.jing.rpc.provider.ServiceRegistry;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,11 +18,11 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
 
     private static final Logger logger = LoggerFactory.getLogger(NettyServerHandler.class);
     private static RequestHandler requestHandler;
-    private static ServiceRegistry serviceRegistry;
+    private static ServiceProvider serviceRegistry;
 
     static {
         requestHandler = new RequestHandler();
-        serviceRegistry = new DefaultServiceRegistry();
+        serviceRegistry = new ServiceProviderImpl();
     }
 
     @Override

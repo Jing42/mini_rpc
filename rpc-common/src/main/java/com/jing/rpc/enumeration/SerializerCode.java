@@ -2,6 +2,7 @@ package com.jing.rpc.enumeration;
 
 public enum SerializerCode {
 
+    KRYO(0),
     JSON(1);
 
     public int getCode() {
