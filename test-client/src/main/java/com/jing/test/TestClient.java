@@ -2,7 +2,7 @@ package com.jing.test;
 
 import com.jing.rpc.api.HelloObject;
 import com.jing.rpc.api.HelloService;
-import com.jing.rpc.client.RpcClientProxy;
+import com.jing.rpc.transport.RpcClientProxy;
 import com.jing.rpc.transport.socket.client.SocketClient;
 
 public class TestClient {

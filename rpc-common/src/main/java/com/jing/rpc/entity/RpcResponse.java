@@ -10,22 +10,35 @@ public class RpcResponse<T> implements Serializable {
 
     private String message;
 
+    private String requestId;
+
     private T data;
 
-    public static <T> RpcResponse<T> success(T data) {
+
+
+    public static <T> RpcResponse<T> success(T data, String requestId) {
         RpcResponse<T> response = new RpcResponse<>();
+        response.setRequestId(requestId);
         response.setStatusCode(ResponseCode.SUCCESS.getCode());
         response.setData(data);
         return response;
     }
 
-    public static <T> RpcResponse<T> fail(ResponseCode code) {
+    public static <T> RpcResponse<T> fail(ResponseCode code, String requestId) {
         RpcResponse<T> response = new RpcResponse<>();
         response.setStatusCode(code.getCode());
         response.setMessage(code.getMessage());
+        response.setRequestId(requestId);
         return response;
     }
 
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
 
     public Integer getStatusCode() {
         return statusCode;

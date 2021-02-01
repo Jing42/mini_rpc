@@ -1,8 +1,10 @@
 package com.jing.rpc.transport.socket.server;
 
-import com.jing.rpc.RpcServer;
+import com.jing.rpc.registry.NacosServiceRegistry;
+import com.jing.rpc.registry.ServiceRegistry;
+import com.jing.rpc.transport.RpcServer;
 import com.jing.rpc.provider.ServiceRegistry;
-import com.jing.rpc.RequestHandler;
+import com.jing.rpc.handler.RequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,10 +15,7 @@ import java.util.concurrent.*;
 
 public class SocketServer implements RpcServer {
 
-    private static final int CORE_POOL_SIZE = 5;
-    private static final int MAXIMUM_POOL_SIZE = 50;
-    private static final int KEEP_ALIVE_TIME = 60;
-    private static final int BLOCKING_QUEUE_CAPACITY = 100;
+
     private RequestHandler requestHandler = new RequestHandler();
     private final ServiceRegistry serviceRegistry;
     private final ExecutorService threadPool;
@@ -25,15 +24,16 @@ public class SocketServer implements RpcServer {
     private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
 
 
-    public SocketServer(ServiceRegistry serviceRegistry) {
-        this.serviceRegistry = serviceRegistry;
+    public SocketServer(String host, int port) {
+        serviceRegistry = new NacosServiceRegistry();
+        this.host = host;
         BlockingQueue<Runnable> workingQueue = new ArrayBlockingQueue<>(BLOCKING_QUEUE_CAPACITY);
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         threadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS, workingQueue, threadFactory);
     }
 
     @Override
-    public void start(int port) {
+    public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             logger.info("server is starting...");
             Socket socket;

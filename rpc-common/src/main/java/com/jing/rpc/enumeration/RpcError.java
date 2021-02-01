@@ -9,7 +9,9 @@ public enum RpcError {
     UNKNOWN_PACKAGE_TYPE("unknown package type!"),
     UNKNOWN_SERIALIZER("unknow serializer"),
     FAILED_TO_CONNECT_TO_SERVICE_REGISTRY("failed to connect to service registry!"),
-    REGISTER_SERVICE_FAILED("failed to register service!");
+    SERIALIZER_NOT_FOUND("failed to find serializer!"),
+    REGISTER_SERVICE_FAILED("failed to register service!"),
+    CLIENT_CONNECT_SERVER_FAILURE("client failed to connect server!");
 
     private final String message;
 

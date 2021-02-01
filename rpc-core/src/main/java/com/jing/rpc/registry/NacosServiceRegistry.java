@@ -16,7 +16,7 @@ public class NacosServiceRegistry implements ServiceRegistry{
 
     private static final Logger logger = LoggerFactory.getLogger(NacosServiceRegistry.class);
 
-    private static final String SERVER_ADDR = "127.0.0.1:8848";
+    private static final String SERVER_ADDR = "42.194.137.21:8848";
     private static final NamingService namingService;
 
     static {

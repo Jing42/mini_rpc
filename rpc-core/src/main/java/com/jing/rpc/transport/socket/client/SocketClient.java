@@ -1,6 +1,6 @@
 package com.jing.rpc.transport.socket.client;
 
-import com.jing.rpc.RpcClient;
+import com.jing.rpc.transport.RpcClient;
 import com.jing.rpc.entity.RpcRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
