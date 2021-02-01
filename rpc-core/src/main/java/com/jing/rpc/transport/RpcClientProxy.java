@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.UUID;
 
 public class RpcClientProxy implements InvocationHandler {
 
@@ -27,12 +28,14 @@ public class RpcClientProxy implements InvocationHandler {
         logger.info("invoke method: {}#{}", method.getDeclaringClass().getName(), method.getName());
 
         RpcRequest rpcRequest = new RpcRequest(
+                UUID.randomUUID().toString(),
                 method.getDeclaringClass().getName(),
                 method.getName(),
                 objects,
                 method.getParameterTypes()
         );
 
-        return client.sendRequest(rpcRequest);
+        Object o1 = client.sendRequest(rpcRequest);
+        return o1;
     }
 }

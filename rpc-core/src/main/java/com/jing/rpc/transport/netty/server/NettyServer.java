@@ -71,9 +71,9 @@ public class NettyServer extends AbstractRpcServer {
     }
 
     @Override
-    public <T> void publishService(T service, String serviceName) {
-        serviceProvider.addServiceProvider(service, serviceName);
-        serviceRegistry.register(serviceName, new InetSocketAddress(host, port));
+    public <T> void publishService(Object service, Class<T> serviceClass) {
+        serviceProvider.addServiceProvider(service);
+        serviceRegistry.register(serviceClass.getCanonicalName(), new InetSocketAddress(host, port));
         start();
     }
 }

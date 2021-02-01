@@ -11,6 +11,7 @@ import com.jing.rpc.codec.CommonEncoder;
 import com.jing.rpc.entity.RpcRequest;
 import com.jing.rpc.entity.RpcResponse;
 import com.jing.rpc.serializer.KryoSerializer;
+import com.jing.rpc.util.RpcMessageChecker;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -52,7 +53,9 @@ public class NettyClient implements RpcClient {
         }
         AtomicReference<Object> result = new AtomicReference<>(null);
         try {
+
             InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(request.getInterfaceName());
+
             Channel channel = ChannelProvider.get(inetSocketAddress, serializer);
             if(channel.isActive()) {
                 channel.writeAndFlush(request).addListener(future1 -> {
@@ -65,6 +68,8 @@ public class NettyClient implements RpcClient {
                 channel.closeFuture().sync();
                 AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse" + request.getRequestId());
                 RpcResponse rpcResponse = channel.attr(key).get();
+                RpcMessageChecker.check(request, rpcResponse);
+                result.set(rpcResponse.getData());
             } else {
                 System.exit(0);
             }

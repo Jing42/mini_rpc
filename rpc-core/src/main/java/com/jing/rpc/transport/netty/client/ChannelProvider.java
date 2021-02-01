@@ -30,8 +30,8 @@ public class ChannelProvider {
     public static Channel get(InetSocketAddress inetSocketAddress, CommonSerializer serializer) {
         bootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
-            protected void initChannel(SocketChannel socketChannel) throws Exception {
-                channel.pipeline().addLast(new CommonEncoder(serializer))
+            protected void initChannel(SocketChannel socketChannel) {
+                socketChannel.pipeline().addLast(new CommonEncoder(serializer))
                         .addLast(new CommonDecoder())
                         .addLast(new NettyClientHandler());
             }

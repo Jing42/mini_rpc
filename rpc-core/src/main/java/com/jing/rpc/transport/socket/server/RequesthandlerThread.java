@@ -1,11 +1,11 @@
 package com.jing.rpc.transport.socket.server;
 
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.jing.rpc.handler.RequestHandler;
 import com.jing.rpc.entity.RpcRequest;
 import com.jing.rpc.entity.RpcResponse;
 import com.jing.rpc.registry.ServiceRegistry;
 import com.jing.rpc.serializer.CommonSerializer;
+import com.jing.rpc.transport.socket.util.ObjectWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

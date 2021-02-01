@@ -11,7 +11,8 @@ public enum RpcError {
     FAILED_TO_CONNECT_TO_SERVICE_REGISTRY("failed to connect to service registry!"),
     SERIALIZER_NOT_FOUND("failed to find serializer!"),
     REGISTER_SERVICE_FAILED("failed to register service!"),
-    CLIENT_CONNECT_SERVER_FAILURE("client failed to connect server!");
+    CLIENT_CONNECT_SERVER_FAILURE("client failed to connect server!"),
+    RESPONSE_NOT_MATCH("response id not match!");
 
     private final String message;
 

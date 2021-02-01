@@ -10,7 +10,7 @@ public class NettyTestServer {
         HelloService helloService = new HelloServiceImpl();
 
         NettyServer server = new NettyServer("127.0.0.1", 9999);
-        server.publishService(helloService, "helloService");
+        server.publishService(helloService, HelloService.class);
 
 
     }
