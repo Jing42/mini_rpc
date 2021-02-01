@@ -31,40 +31,33 @@ public class SocketClient implements RpcClient {
         this.serviceRegistry = new NacosServiceRegistry();
     }
 
-
     @Override
     public Object sendRequest(RpcRequest rpcRequest) {
         if(serializer == null) {
-            logger.error("serializer unset!");
+            logger.error("未设置序列化器");
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
-
         InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(rpcRequest.getInterfaceName());
-
-
         try (Socket socket = new Socket()) {
             socket.connect(inetSocketAddress);
             OutputStream outputStream = socket.getOutputStream();
             InputStream inputStream = socket.getInputStream();
-
             ObjectWriter.writeObject(outputStream, rpcRequest, serializer);
-            System.out.println("write!!!");
             Object obj = ObjectReader.readObject(inputStream);
-            System.out.println("receive!!!");
-
             RpcResponse rpcResponse = (RpcResponse) obj;
-            if(rpcResponse == null) {
-                logger.error("call service {} fail", rpcRequest.getInterfaceName());
+            if (rpcResponse == null) {
+                logger.error("服务调用失败，service：{}", rpcRequest.getInterfaceName());
                 throw new RpcException(RpcError.SERVICE_INVOCATION_FAILURE, " service:" + rpcRequest.getInterfaceName());
             }
-            if(rpcResponse.getStatusCode() == null || rpcResponse.getStatusCode() != ResponseCode.SUCCESS.getCode()) {
-                logger.error("call service {} fail, response {}", rpcRequest.getInterfaceName(), rpcResponse);
+            if (rpcResponse.getStatusCode() == null || rpcResponse.getStatusCode() != ResponseCode.SUCCESS.getCode()) {
+                logger.error("调用服务失败, service: {}, response:{}", rpcRequest.getInterfaceName(), rpcResponse);
+                throw new RpcException(RpcError.SERVICE_INVOCATION_FAILURE, " service:" + rpcRequest.getInterfaceName());
             }
             RpcMessageChecker.check(rpcRequest, rpcResponse);
             return rpcResponse.getData();
         } catch (IOException e) {
-            logger.error("there is error happen during call ", e);
-            throw new RpcException("service call fail!: ", e);
+            logger.error("调用时有错误发生：", e);
+            throw new RpcException("服务调用失败: ", e);
         }
     }
 
@@ -72,4 +65,6 @@ public class SocketClient implements RpcClient {
     public void setSerializer(CommonSerializer serializer) {
         this.serializer = serializer;
     }
+
 }
+

@@ -14,17 +14,16 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.Socket;
 
-public class RequesthandlerThread implements Runnable{
+public class RequestHandlerThread implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(RequestHandlerThread.class);
 
     private Socket socket;
     private RequestHandler requestHandler;
     private ServiceRegistry serviceRegistry;
     private CommonSerializer serializer;
 
-    public RequesthandlerThread(Socket socket, RequestHandler requestHandler, ServiceRegistry serviceRegistry,
-                                CommonSerializer serializer) {
+    public RequestHandlerThread(Socket socket, RequestHandler requestHandler, ServiceRegistry serviceRegistry, CommonSerializer serializer) {
         this.socket = socket;
         this.requestHandler = requestHandler;
         this.serviceRegistry = serviceRegistry;
@@ -35,17 +34,14 @@ public class RequesthandlerThread implements Runnable{
     public void run() {
         try (InputStream inputStream = socket.getInputStream();
              OutputStream outputStream = socket.getOutputStream()) {
-            System.out.println("here we are");
             RpcRequest rpcRequest = (RpcRequest) ObjectReader.readObject(inputStream);
-            System.out.println("here this");
+            String interfaceName = rpcRequest.getInterfaceName();
             Object result = requestHandler.handle(rpcRequest);
-            System.out.println("handle success");
             RpcResponse<Object> response = RpcResponse.success(result, rpcRequest.getRequestId());
             ObjectWriter.writeObject(outputStream, response, serializer);
-            System.out.println("write sucess");
         } catch (IOException e) {
-            logger.error("error happens during call or send: ", e);
+            logger.error("调用或发送时有错误发生：", e);
         }
-
     }
+
 }

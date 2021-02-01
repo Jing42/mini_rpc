@@ -20,54 +20,31 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.*;
 
-public class SocketServer extends AbstractRpcServer {
+public class SocketServer implements RpcServer {
 
+    private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
 
+    private final ExecutorService threadPool;;
+    private final String host;
+    private final int port;
+    private CommonSerializer serializer;
     private RequestHandler requestHandler = new RequestHandler();
 
     private final ServiceRegistry serviceRegistry;
     private final ServiceProvider serviceProvider;
 
-    private final ExecutorService threadPool;
-    private CommonSerializer serializer;
-
-    private final String host;
-    private final int port;
-
-
-
-    private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
-
-
     public SocketServer(String host, int port) {
-        serviceRegistry = new NacosServiceRegistry();
-        serviceProvider = new ServiceProviderImpl();
-
         this.host = host;
         this.port = port;
-
         threadPool = ThreadPoolFactory.createDefaultThreadPool("socket-rpc-server");
-    }
-
-    @Override
-    public void start() {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            logger.info("server is starting...");
-            Socket socket;
-            while((socket = serverSocket.accept()) != null) {
-                logger.info("client ip is: {} port: {}", socket.getInetAddress(), socket.getPort());
-                threadPool.execute(new RequesthandlerThread(socket, requestHandler, serviceRegistry, serializer));
-            }
-            threadPool.shutdown();
-        } catch (IOException e) {
-            logger.error("error occur while connection: ", e);
-        }
+        this.serviceRegistry = new NacosServiceRegistry();
+        this.serviceProvider = new ServiceProviderImpl();
     }
 
     @Override
     public <T> void publishService(Object service, Class<T> serviceClass) {
         if(serializer == null) {
-            logger.error("serializer unset!");
+            logger.error("未设置序列化器");
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
         serviceProvider.addServiceProvider(service);
@@ -75,7 +52,23 @@ public class SocketServer extends AbstractRpcServer {
         start();
     }
 
+    @Override
+    public void start() {
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            logger.info("服务器启动……");
+            Socket socket;
+            while ((socket = serverSocket.accept()) != null) {
+                logger.info("消费者连接: {}:{}", socket.getInetAddress(), socket.getPort());
+                threadPool.execute(new RequestHandlerThread(socket, requestHandler, serviceRegistry, serializer));
+            }
+            threadPool.shutdown();
+        } catch (IOException e) {
+            logger.error("服务器启动时有错误发生:", e);
+        }
+    }
+
     public void setSerializer(CommonSerializer serializer) {
         this.serializer = serializer;
     }
+
 }
