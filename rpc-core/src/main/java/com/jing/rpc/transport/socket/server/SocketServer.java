@@ -55,7 +55,7 @@ public class SocketServer extends AbstractRpcServer {
             logger.info("server is starting...");
             Socket socket;
             while((socket = serverSocket.accept()) != null) {
-                logger.info("client ip is: {} port: ", socket.getInetAddress(), socket.getPort());
+                logger.info("client ip is: {} port: {}", socket.getInetAddress(), socket.getPort());
                 threadPool.execute(new RequesthandlerThread(socket, requestHandler, serviceRegistry, serializer));
             }
             threadPool.shutdown();
