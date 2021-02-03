@@ -1,6 +1,7 @@
 package com.jing.test;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.jing.rpc.api.ByeService;
 import com.jing.rpc.serializer.CommonSerializer;
 import com.jing.rpc.serializer.KryoSerializer;
 import com.jing.rpc.transport.RpcClient;
@@ -20,6 +21,10 @@ public class NettyTestClient {
 
         String res = helloService.hello(object);
         System.out.println(res);
+
+        ByeService byeService = rpcClientProxy.getProxy(ByeService.class);
+
+        System.out.println(byeService.bye("jing!"));
     }
 }
 
