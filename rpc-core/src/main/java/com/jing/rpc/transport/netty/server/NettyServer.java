@@ -36,6 +36,7 @@ public class NettyServer extends AbstractRpcServer {
         serviceRegistry = new NacosServiceRegistry();
         serviceProvider = new ServiceProviderImpl();
         this.serializer = CommonSerializer.getByCode(serializer);
+        scanServices();
     }
 
     @Override
@@ -72,10 +73,4 @@ public class NettyServer extends AbstractRpcServer {
 
     }
 
-    @Override
-    public <T> void publishService(Object service, Class<T> serviceClass) {
-        serviceProvider.addServiceProvider(service);
-        serviceRegistry.register(serviceClass.getCanonicalName(), new InetSocketAddress(host, port));
-        start();
-    }
 }

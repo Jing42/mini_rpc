@@ -12,7 +12,8 @@ public enum RpcError {
     SERIALIZER_NOT_FOUND("failed to find serializer!"),
     REGISTER_SERVICE_FAILED("failed to register service!"),
     CLIENT_CONNECT_SERVER_FAILURE("client failed to connect server!"),
-    RESPONSE_NOT_MATCH("response id not match!");
+    RESPONSE_NOT_MATCH("response id not match!"),
+    UNKNOWN_ERRROR("unknown error!");
 
     private final String message;
 

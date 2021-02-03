@@ -7,5 +7,5 @@ public interface RpcServer {
 
     void start();
 
-    <T> void publishService(Object service, Class<T> serviceName);
+    <T> void publishService(T service, String serviceName);
 }
