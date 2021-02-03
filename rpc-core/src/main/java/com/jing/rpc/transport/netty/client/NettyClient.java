@@ -34,8 +34,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class NettyClient implements RpcClient {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
-    private static final EventLoopGroup group;
-    private static final Bootstrap bootstrap;
 
     private final ServiceDiscovery serviceDiscovery;
     private CommonSerializer serializer;
@@ -51,15 +49,6 @@ public class NettyClient implements RpcClient {
         this.unprocessedRequests = SingletonFactory.getInstance(UnprocessedRequests.class);
     }
 
-
-    static {
-        group = new NioEventLoopGroup();
-        bootstrap = new Bootstrap();
-        bootstrap.group(group)
-                .channel(NioSocketChannel.class)
-                .option(ChannelOption.SO_KEEPALIVE, true);
-    }
-
     @Override
     public CompletableFuture<RpcResponse> sendRequest(RpcRequest request) {
         if(serializer == null) {
@@ -71,11 +60,9 @@ public class NettyClient implements RpcClient {
         try {
             InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(request.getInterfaceName());
             Channel channel = ChannelProvider.get(inetSocketAddress, serializer);
-            if (!channel.isActive()) {
-                group.shutdownGracefully();
-                return null;
-            }
+
             unprocessedRequests.put(request.getRequestId(), resultFuture);
+
             channel.writeAndFlush(request).addListener((ChannelFutureListener)future1 -> {
                 if(future1.isSuccess()) {
                     logger.info(String.format("client send message: %s", request.toString()));

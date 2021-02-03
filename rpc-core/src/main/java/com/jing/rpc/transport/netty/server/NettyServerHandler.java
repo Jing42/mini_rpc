@@ -18,12 +18,9 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
 
     private static final Logger logger = LoggerFactory.getLogger(NettyServerHandler.class);
     private static RequestHandler requestHandler;
-    private static final String Thread_NAME_PREFIX = "netty-server-handler";
-    private static final ExecutorService threadPool;
 
     static {
         requestHandler = new RequestHandler();
-        threadPool = ThreadPoolFactory.createDefaultThreadPool(Thread_NAME_PREFIX);
     }
 
     @Override

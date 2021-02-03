@@ -17,18 +17,6 @@ public class NacosServiceRegistry implements ServiceRegistry{
 
     private static final Logger logger = LoggerFactory.getLogger(NacosServiceRegistry.class);
 
-    private static final String SERVER_ADDR = "42.194.137.21:8848";
-    private static final NamingService namingService;
-
-    static {
-        try {
-            namingService = NamingFactory.createNamingService(SERVER_ADDR);
-        } catch (NacosException e) {
-            logger.error("error happens while conenct to Nacos: ", e);
-            throw new RpcException(RpcError.FAILED_TO_CONNECT_TO_SERVICE_REGISTRY);
-        }
-    }
-
     @Override
     public void register(String serviceName, InetSocketAddress inetSocketAddress) {
         try {
