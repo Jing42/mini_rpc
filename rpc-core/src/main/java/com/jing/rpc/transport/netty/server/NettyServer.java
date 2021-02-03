@@ -1,5 +1,6 @@
 package com.jing.rpc.transport.netty.server;
 
+import com.jing.rpc.hook.ShutdownHook;
 import com.jing.rpc.provider.ServiceProviderImpl;
 import com.jing.rpc.registry.NacosServiceRegistry;
 import com.jing.rpc.serializer.CommonSerializer;
@@ -39,6 +40,7 @@ public class NettyServer extends AbstractRpcServer {
 
     @Override
     public void start() {
+        ShutdownHook.getShutdownHook().addClearAllHook();
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 

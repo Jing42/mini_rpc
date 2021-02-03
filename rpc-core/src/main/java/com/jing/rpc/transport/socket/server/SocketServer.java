@@ -2,15 +2,15 @@ package com.jing.rpc.transport.socket.server;
 
 import com.jing.rpc.enumeration.RpcError;
 import com.jing.rpc.exception.RpcException;
+import com.jing.rpc.hook.ShutdownHook;
 import com.jing.rpc.provider.ServiceProvider;
 import com.jing.rpc.provider.ServiceProviderImpl;
 import com.jing.rpc.registry.NacosServiceRegistry;
 import com.jing.rpc.registry.ServiceRegistry;
 import com.jing.rpc.serializer.CommonSerializer;
-import com.jing.rpc.transport.AbstractRpcServer;
 import com.jing.rpc.transport.RpcServer;
 import com.jing.rpc.handler.RequestHandler;
-import com.jing.rpc.util.ThreadPoolFactory;
+import com.jing.rpc.factory.ThreadPoolFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +56,7 @@ public class SocketServer implements RpcServer {
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             logger.info("服务器启动……");
+            ShutdownHook.getShutdownHook().addClearAllHook();
             Socket socket;
             while ((socket = serverSocket.accept()) != null) {
                 logger.info("消费者连接: {}:{}", socket.getInetAddress(), socket.getPort());

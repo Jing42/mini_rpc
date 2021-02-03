@@ -6,6 +6,7 @@ import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.jing.rpc.enumeration.RpcError;
 import com.jing.rpc.exception.RpcException;
+import com.jing.rpc.util.NacosUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,23 +32,11 @@ public class NacosServiceRegistry implements ServiceRegistry{
     @Override
     public void register(String serviceName, InetSocketAddress inetSocketAddress) {
         try {
-            namingService.registerInstance(serviceName, inetSocketAddress.getHostName(), inetSocketAddress.getPort());
+            NacosUtil.registerService(serviceName, inetSocketAddress);
         } catch (NacosException e) {
             logger.error("error happens while register service: ", e);
             throw new RpcException(RpcError.REGISTER_SERVICE_FAILED);
         }
     }
 
-    @Override
-    public InetSocketAddress lookupService(String serviceName) {
-        try {
-
-            List<Instance> instances = namingService.getAllInstances(serviceName);
-            Instance instance = instances.get(0);
-            return new InetSocketAddress(instance.getIp(), instance.getPort());
-        } catch (NacosException e) {
-            logger.error("error happens while lookup service: ", e);
-        }
-        return null;
-    }
 }

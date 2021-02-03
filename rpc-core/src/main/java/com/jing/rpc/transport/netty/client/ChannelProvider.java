@@ -10,13 +10,14 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.Date;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.concurrent.*;
 
 public class ChannelProvider {
 
@@ -24,56 +25,55 @@ public class ChannelProvider {
     private static EventLoopGroup eventLoopGroup;
     private static Bootstrap bootstrap = initializeBootstrap();
 
-    private static final int MAX_RETRY_COUNT = 5;
-    private static Channel channel = null;
+    private static Map<String, Channel> channels = new ConcurrentHashMap<>();
 
-    public static Channel get(InetSocketAddress inetSocketAddress, CommonSerializer serializer) {
+    public static Channel get(InetSocketAddress inetSocketAddress, CommonSerializer serializer)
+                throws InterruptedException {
+        String key = inetSocketAddress.toString() + serializer.getCode();
+        if(channels.containsKey(key)) {
+            Channel channel = channels.get(key);
+            if(channel != null && channel.isActive()) {
+                return channel;
+            } else {
+                channels.remove(key);
+            }
+        }
+
         bootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel socketChannel) {
                 socketChannel.pipeline().addLast(new CommonEncoder(serializer))
+                        .addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS))
                         .addLast(new CommonDecoder())
                         .addLast(new NettyClientHandler());
             }
         });
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        Channel channel = null;
 
         try {
-            connect(bootstrap, inetSocketAddress, countDownLatch);
-            countDownLatch.await();
-        } catch (InterruptedException e) {
+            channel = connect(bootstrap, inetSocketAddress);
+        } catch (ExecutionException e) {
             logger.error("error happens while acquire channel:", e);
+            return null;
         }
+        channels.put(key, channel);
         return channel;
     }
 
-    private static void connect(Bootstrap bootstrap, InetSocketAddress inetSocketAddress, CountDownLatch countDownLatch) {
-        connect(bootstrap, inetSocketAddress, MAX_RETRY_COUNT, countDownLatch);
-    }
-
-    private static void connect(Bootstrap bootstrap, InetSocketAddress inetSocketAddress, int retry, CountDownLatch countDownLatch) {
+    private static Channel connect(Bootstrap bootstrap, InetSocketAddress inetSocketAddress)
+            throws ExecutionException, InterruptedException{
+        CompletableFuture<Channel> completableFuture = new CompletableFuture<>();
         bootstrap.connect(inetSocketAddress).addListener((ChannelFutureListener) future -> {
-
-            if (future.isSuccess()) {
+            if(future.isSuccess()) {
                 logger.info("client connect success!");
-                channel = future.channel();
-                countDownLatch.countDown();
-                return;
+                completableFuture.complete(future.channel());
+            } else {
+                throw new IllegalStateException();
             }
-
-            if(retry == 0) {
-                logger.error("client connect fail: retry count used up, give up connection!");
-                countDownLatch.countDown();
-                throw new RpcException(RpcError.CLIENT_CONNECT_SERVER_FAILURE);
-            }
-
-            int order = (MAX_RETRY_COUNT - retry) + 1;
-            int delay = 1 << order;
-            logger.error("{}: connect fail, the {} time to reconnect......", new Date(), order);
-            bootstrap.config().group().schedule(() -> connect(bootstrap, inetSocketAddress, retry-1, countDownLatch),
-                    delay, TimeUnit.SECONDS);
         });
+        return completableFuture.get();
     }
+
 
     private static Bootstrap initializeBootstrap() {
         eventLoopGroup = new NioEventLoopGroup();

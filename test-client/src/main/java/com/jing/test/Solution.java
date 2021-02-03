@@ -1,32 +1,26 @@
 package com.jing.test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-class Foo {
-    int a;
-
-    public int getA() {
-        return a;
-    }
-
-    public void setA(int a) {
-        this.a = a;
-    }
-}
 
 public class Solution {
-    public static void main(String[] args) {
-        List<Foo> fooList = new ArrayList<>();
-        Foo foo = new Foo();
-        for(int i = 0; i < 20; i++) {
-            foo.setA(i);
-            fooList.add(foo);
+    public int minKBitFlips(int[] A, int K) {
+        int countZero = 0;
+        int n = A.length;
+        if((countZero % 2 == 1) && (K % 2 == 0)) {
+            return -1;
         }
-        for (Foo foo1 : fooList) {
-            System.out.println(foo1.getA());
+        int res = 0;
+        Set<Integer> occured = new HashSet<>();
+        for(int i = 0; i < A.length; i++) {
+            if(A[i] == 0) countZero++;
         }
+        while(countZero != 0) {
+            res++;
+            if(countZero >= 2 * K) {
+                countZero -= K;
+            }
+        }
+        return res;
     }
-
-
 }

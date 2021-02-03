@@ -1,6 +1,7 @@
 package com.jing.rpc.transport.netty.client;
 
 import com.jing.rpc.entity.RpcResponse;
+import com.jing.rpc.factory.SingletonFactory;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.AttributeKey;
@@ -12,13 +13,17 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
 
     private static final Logger logger = LoggerFactory.getLogger(NettyClientHandler.class);
 
+    private final UnprocessedRequests unprocessedRequests;
+
+    public NettyClientHandler() {
+        this.unprocessedRequests = SingletonFactory.getInstance(UnprocessedRequests.class);
+    }
+
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
         try {
             logger.info(String.format("client receive message: %s", rpcResponse));
-            AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse" + rpcResponse.getRequestId());
-            channelHandlerContext.channel().attr(key).set(rpcResponse);
-            channelHandlerContext.channel().close();
+            unprocessedRequests.complete(rpcResponse);
         } finally {
             ReferenceCountUtil.release(rpcResponse);
         }
